@@ -16,11 +16,11 @@ tab = "    "
 
 fstring = ""
 string = ""
-indentreturns = []
+indentreturns = ["test", "test"]
 
 indent = 0
 lastindent = 0
-else_ = False
+iselse = False
 
 for l in range(0, len(code)):
     line = code[l]
@@ -33,13 +33,15 @@ for l in range(0, len(code)):
                 indent = GetIndent(code[i])
                 break
 
-    if line.startswith("else") or line.startswith("elif"): else_ = True
+    if line.startswith("else") or line.startswith("elif"): iselse = True
+
+    if type(indent) != int: indent = 0
 
     if indent < lastindent:
-        for i in range(0, lastindent - (indent + int(else_))):
+        for i in range(0, lastindent - (indent + int(iselse))):
             fstring += indentreturns.pop() + "\n"
 
-    if else_: else_ = False
+    if iselse: iselse = False
 
     if line.startswith("def"):
         if not line.endswith(":"):
@@ -61,14 +63,14 @@ for l in range(0, len(code)):
             fstring += line[:-1] + " then"
             indentreturns.append("end if")
         else:
-            fstring += line.split(":")[0] + " then\n" + line.split(":")[1].strip()
+            fstring += line.split(":")[0] + " then\n" + line.split(":")[1].strip() + "\n" + tab * (indent - 2) + "end if"
             indentreturns.append("end if")
 
     elif line.startswith("elif"):
         if line.endswith(":"):
             fstring += "else if " + " ".join(line.split(" ")[1:])
         else:
-            fstring += "else if " + " ".join(line.split(" ")[1:].split(":")[0]).strip() + "\n" + line.split(":")[1]
+            fstring += "else if " + " ".join(line.split(" ")[1:]).split(":")[0].strip() + "\n" + line.split(":")[1]
 
     elif line.startswith("else"):
         if line.endswith(":"):
